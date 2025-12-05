@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Calculadora</title>
+<title>Calculadora Restringida</title>
 
 <style>
     body {
@@ -12,104 +12,145 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #f5f5f5;
+        background: #eef2ff;
     }
 
     .contenedor {
         text-align: center;
-        transform: scale(1.2)
-        
+        padding: 25px;
+        border-radius: 20px;
+        background: white;
+        box-shadow: 0 0 25px rgba(0,0,0,0.2);
+        transform: scale(1.1);
     }
 
     button {
         width: 70px;
         height: 60px;
         margin: 5px;
-        font-size: 18px;
+        font-size: 20px;
         cursor: pointer;
-        border-radius: 10px;
-        margin-top: 10px;
-        
+        border-radius: 12px;
+        border: none;
+        background: #f0f0f0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: 0.2s ease;
     }
 
-    .limpiar {
-        width: 200px;
-        height: 60px;
-        font-size: 26px;
-        background: #ff4d4d;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        margin-top: 15px;
-    }
-    #pantalla {
-        width: 300px;
-        height: 40px;
-        font-size: 28px;
-        text-align: right;
-        padding: 10px;
-    }
-    .operacion {
-        background: green;
-        color: white;
-        border: none;
-        border-radius: 6px;
-    }
+    button:hover { background: #e1e1e1; transform: scale(1.05); }
+    button:active { transform: scale(0.92); }
+
+    .operacion { background: #2563eb; color: white; }
+    .limpiar { width: 220px; background: #dc2626; color: white; font-size: 24px; }
 </style>
-
 </head>
 
 <body>
 
 <div class="contenedor">
 
-    <h2 style="font-size: 50px; color: blue;">CALCULADORA</h2>
+    <h2 style="font-size: 50px; color: #2563eb;">CALCULADORA</h2>
 
-    <input type="text" id="pantalla" readonly><br><br>
+    <input type="text" id="pantalla" readonly 
+        style="width:300px; height:50px; font-size:32px; text-align:right; padding:10px; border-radius:10px; border:2px solid #2563eb;">
+
+    <br><br>
 
     <button onclick="agregar('7')">7</button>
     <button onclick="agregar('8')">8</button>
     <button onclick="agregar('9')">9</button>
-    <button class="operacion" onclick="agregar('/')">/</button><br>
+    <button class="operacion" onclick="agregarOp('/')">/</button><br>
 
     <button onclick="agregar('4')">4</button>
     <button onclick="agregar('5')">5</button>
     <button onclick="agregar('6')">6</button>
-    <button class="operacion" onclick="agregar('*')">*</button><br>
+    <button class="operacion" onclick="agregarOp('*')">*</button><br>
 
     <button onclick="agregar('1')">1</button>
     <button onclick="agregar('2')">2</button>
     <button onclick="agregar('3')">3</button>
-    <button class="operacion" onclick="agregar('-')">-</button><br>
+    <button class="operacion" onclick="agregarOp('-')">-</button><br>
 
     <button onclick="agregar('0')">0</button>
-    <button onclick="agregar('.')">.</button>
+    <button onclick="agregarDecimal('.')">.</button>
     <button class="operacion" onclick="calcular()">=</button>
-    <button class="operacion" onclick="agregar('+')">+</button><br><br>
+    <button class="operacion" onclick="agregarOp('+')">+</button><br><br>
 
-    <button class="limpiar"  onclick="limpiar()">Limpiar</button>
+    <button class="limpiar" onclick="limpiar()">Limpiar</button>
 
 </div>
 
 <script>
-    function agregar(valor) {
-        document.getElementById("pantalla").value += valor;
-    }
 
-    function calcular() {
-        let pantalla = document.getElementById("pantalla");
-        try {
-            pantalla.value = eval(pantalla.value);
-        } catch {
+function agregar(valor) {
+    let pantalla = document.getElementById("pantalla");
+
+    // Si estaba en error → limpiar antes de escribir
+    if (pantalla.value === "Error") pantalla.value = "";
+
+    pantalla.value += valor;
+}
+
+function agregarOp(op) {
+    let pantalla = document.getElementById("pantalla");
+    let val = pantalla.value;
+
+    if (val === "") return; // No inicia con operador
+
+    let ultimo = val.slice(-1);
+
+    // Evitar operadores seguidos
+    if ("+-*/".includes(ultimo)) return;
+
+    pantalla.value += op;
+}
+
+function agregarDecimal() {
+    let pantalla = document.getElementById("pantalla");
+    let val = pantalla.value;
+
+    if (val === "") return;
+
+    // Obtener el último número separado por operadores
+    let partes = val.split(/[\+\-\*\/]/);
+    let ultimoNumero = partes[partes.length - 1];
+
+    // Evita dos puntos decimales en el mismo número
+    if (ultimoNumero.includes(".")) return;
+
+    pantalla.value += ".";
+}
+
+function calcular() {
+    let pantalla = document.getElementById("pantalla");
+    let val = pantalla.value;
+
+    // Evitar que termine con operador
+    if ("+-*/".includes(val.slice(-1))) return;
+
+    try {
+        let resultado = eval(val);
+
+        // Resultados inválidos
+        if (resultado === Infinity || resultado === -Infinity || isNaN(resultado)) {
             pantalla.value = "Error";
+        } else {
+            pantalla.value = resultado;
         }
-    }
 
-    function limpiar() {
-        document.getElementById("pantalla").value = "";
+    } catch {
+        pantalla.value = "Error";
     }
+}
+
+function limpiar() {
+    document.getElementById("pantalla").value = "";
+}
+
 </script>
 
 </body>
 </html>
+
+
 
